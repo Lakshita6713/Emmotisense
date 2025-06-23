@@ -1,0 +1,131 @@
+# Importing Dependencies
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
+# Generate Random Data
+n = 1000
+X = 10* np.random.random(n) - 5 # X in range (-5, 5)
+Y = 4*X + 3 + np.random.normal(loc = 0, scale = 5, size = n) #Y is generated from the equation: Y = 4X + 3 + noise where noise is Gaussian with mean 0 and std deviation 5.
+
+plt.figure()
+plt.scatter(
+    X,
+    Y
+)
+def Y_based_on_X(x,a,b):
+  return a*x +b
+
+# Gradient Descent
+a,b = 0,0
+l = 0.01
+
+#define your descend function here
+
+plt.figure()
+plt.scatter(
+    X,
+    Y
+)
+
+plt.scatter(X,Y_based_on_X(X,a,b),c = "red")
+# Closed form SOlution
+# Go through this code. This code is just for learning the closed form solution
+#This closed-form solution snippet implements Ordinary Least Squares (OLS) linear regression using matrix algebra, also known as the Normal Equation
+
+X_0 = []
+for i in range(len(X)):
+  X_0.append((1,X[i]))
+X = np.matrix(X_0)
+Y = np.matrix(Y)
+beta = (X.T*X).I*X.T*Y.T
+
+beta
+
+
+
+def Y_based_on_X(x, a, b):
+    return a * x + b
+
+# Function: Closed-form solution (Normal Equation)
+def closed_form(X, Y):
+    X_0 = [(1, x) for x in X]
+    X_mat = np.matrix(X_0)
+    Y_mat = np.matrix(Y).reshape(-1, 1)
+    beta = (X_mat.T * X_mat).I * X_mat.T * Y_mat
+    return float(beta[1]), float(beta[0])  # returns (a, b)
+
+# Function: Gradient Descent (GD)
+def gradient_descent(X, Y, lr=0.001, epochs=1000):
+    a, b = 0.0, 0.0
+    n = len(X)
+    for _ in range(epochs):
+        Y_pred = a * X + b
+        error = Y_pred - Y
+        da = (2 / n) * np.dot(error, X)
+        db = (2 / n) * np.sum(error)
+        a -= lr * da
+        b -= lr * db
+    return a, b
+
+# Function: Stochastic Gradient Descent (SGD)
+def stochastic_gradient_descent(X, Y, batch_size=100, lr=0.01, epochs=50):
+    a, b = 0.0, 0.0
+    n = len(X)
+    for _ in range(epochs):
+        indices = np.random.permutation(n)
+        for i in range(0, n, batch_size):
+            idx = indices[i:i + batch_size]
+            X_batch = X[idx]
+            Y_batch = Y[idx]
+            Y_pred = a * X_batch + b
+            error = Y_pred - Y_batch
+            da = (2 / len(X_batch)) * np.dot(error, X_batch)
+            db = (2 / len(X_batch)) * np.sum(error)
+            a -= lr * da
+            b -= lr * db
+    return a, b
+
+# Function to run all experiments
+def run_all(n):
+    print(f"\n===== n = {n} =====")
+    X = 10 * np.random.rand(n) - 5
+    Y = 4 * X + 3 + np.random.normal(0, 5, n)
+
+    # Closed-form
+    a_cf, b_cf = closed_form(X, Y)
+    Y_cf = Y_based_on_X(X, a_cf, b_cf)
+    mse_cf = mean_squared_error(Y, Y_cf)
+
+    # Gradient Descent
+    a_gd, b_gd = gradient_descent(X, Y)
+    Y_gd = Y_based_on_X(X, a_gd, b_gd)
+    mse_gd = mean_squared_error(Y, Y_gd)
+
+    # SGD (m=100, or full batch if smaller n)
+    batch_size = min(100, n)
+    a_sgd, b_sgd = stochastic_gradient_descent(X, Y, batch_size=batch_size)
+    Y_sgd = Y_based_on_X(X, a_sgd, b_sgd)
+    mse_sgd = mean_squared_error(Y, Y_sgd)
+
+    # Print results
+    print(f"Closed-form:      a={a_cf:.3f}, b={b_cf:.3f}, MSE={mse_cf:.3f}")
+    print(f"Gradient Descent: a={a_gd:.3f}, b={b_gd:.3f}, MSE={mse_gd:.3f}")
+    print(f"SGD (m={batch_size}):      a={a_sgd:.3f}, b={b_sgd:.3f}, MSE={mse_sgd:.3f}")
+
+    # Plot
+    x_line = np.linspace(-5, 5, 100)
+    plt.figure(figsize=(6, 4))
+    plt.scatter(X, Y, alpha=0.3, label='Data')
+    plt.plot(x_line, Y_based_on_X(x_line, a_cf, b_cf), label='Closed-form', color='green')
+    plt.plot(x_line, Y_based_on_X(x_line, a_gd, b_gd), label='GD', color='blue')
+    plt.plot(x_line, Y_based_on_X(x_line, a_sgd, b_sgd), label='SGD', color='red')
+    plt.title(f"Regression Comparison (n={n})")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Run for different n
+for n_val in [10, 100, 1000, 10000]:
+    run_all(n_val)
