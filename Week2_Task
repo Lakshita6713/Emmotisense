@@ -1,0 +1,59 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+# Utility function to show image using Matplotlib
+def show(img, title="Image", cmap_type=None):
+    plt.figure(figsize=(5, 5))
+    if len(img.shape) == 3:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img, cmap=cmap_type)
+    plt.title(title)
+    plt.axis("off")
+    plt.show()
+# Plot two images side-by-side
+def plot_image(original, processed, title_1="Original", title_2="Processed"):
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    plt.imshow(cv2.cvtColor(original, cv2.COLOR_BGR2RGB))
+    plt.title(title_1)
+    plt.axis("off")
+
+    plt.subplot(1, 2, 2)
+    if len(processed.shape) == 3:
+        plt.imshow(cv2.cvtColor(processed, cv2.COLOR_BGR2RGB))
+    else:
+        plt.imshow(processed, cmap="gray")
+    plt.title(title_2)
+    plt.axis("off")
+    plt.show()
+# Load any image
+image = cv2.imread("/content/image.jpeg")  # Replace with your image path
+if image is None:
+    raise FileNotFoundError("Make sure 'your_image.jpg' exists in your folder!")
+# Add artificial Gaussian noise
+rows, cols, _ = image.shape
+noise = np.random.normal(0, 10, (rows, cols, 3)).astype(np.uint8)
+noisy_image = cv2.add(image, noise)  # Use cv2.add to handle pixel overflow
+
+plot_image(image, noisy_image, title_2="Noisy Image")
+# Apply Mean Blur
+def mean_blur(img, ksize=(5, 5)):
+    return cv2.blur(img, ksize)
+
+# Apply Median Blur
+def median_blur(img, ksize=5):
+    return cv2.medianBlur(img, ksize)
+
+# Apply Gaussian Blur
+def gaussian_blur(img, ksize=(5, 5), sigmaX=0, sigmaY=0):
+    return cv2.GaussianBlur(img, ksize, sigmaX, sigmaY)
+
+# Apply Bilateral Filter
+def bilateral_blur(img, diameter=9, sigmaColor=75, sigmaSpace=75):
+    return cv2.bilateralFilter(img, diameter, sigmaColor, sigmaSpace)
+# Apply each filter and visualize
+show(image)
+plot_image(noisy_image, mean_blur(noisy_image), title_2="Mean Blur")
+plot_image(noisy_image, median_blur(noisy_image, 5), title_2="Median Blur")
+plot_image(noisy_image, gaussian_blur(noisy_image, (5, 5), 4, 4), title_2="Gaussian Blur")
+plot_image(noisy_image, bilateral_blur(noisy_image, 9, 75, 75), title_2="Bilateral Filter")
