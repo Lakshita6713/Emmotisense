@@ -28,14 +28,4 @@ Uses OpenCV for face detection and TensorFlow for classification
 Fully offline and works on mid-range systems
 
 
-🗂 Folder Structure
-
-EmmotiSense/
-├── archive/              # Dataset (from Kaggle)
-│   ├── train/            # 7 emotion folders
-│   └── test/             # 7 emotion folders
-├── emotion_model.h5      # Saved Keras model (after training)
-├── train_emotion_model.py
-├── real_time_emotion.py
-├── README.md             # This file
 
