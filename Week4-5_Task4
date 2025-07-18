@@ -1,0 +1,81 @@
+import tensorflow as tf
+from tensorflow.keras import datasets, layers, models
+import numpy as np
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop
+
+# Load MNIST dataset
+(X_train, y_train), (X_test, y_test) = datasets.mnist.load_data()
+
+# Reshape grayscale to RGB format (28, 28, 3)
+X_train = np.stack([X_train]*3, axis=-1)
+X_test = np.stack([X_test]*3, axis=-1)
+
+# Normalize pixel values to [0, 1]
+X_train = X_train / 255.0
+X_test = X_test / 255.0
+
+# I have this simple 3 layer module and I am using 3 different optimizers for different efficiency.
+
+# Build a simple 3-layer CNN model
+model = models.Sequential([
+    tf.keras.Input(shape=(28, 28, 3)),  # ✅ Proper way to define input shape
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 3)),
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Conv2D(64, (3, 3), activation='relu'),
+
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')  # 10 output classes for digits 0–9
+])
+
+# I am using Stochastic Gradient Descent(SGD) Optimizer.
+
+# Compile the model
+model.compile(optimizer=SGD(learning_rate=0.01),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=5, batch_size=64, validation_split=0.1)
+
+# Evaluate the model on test data
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+
+# Final output
+print(f"Accuracy of my model was {test_accuracy * 100:.2f}%")
+
+# I am using Adam Optimizer.
+
+# Compile the model
+model.compile(optimizer=Adam(learning_rate=0.001),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=5, batch_size=64, validation_split=0.1)
+
+# Evaluate the model on test data
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+
+# Final output
+print(f"Accuracy of my model was {test_accuracy * 100:.2f}%")
+
+# I am using RMSprop Optimizer.
+
+# Compile the model
+model.compile(optimizer=RMSprop(learning_rate=0.0005),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=5, batch_size=64, validation_split=0.1)
+
+# Evaluate the model on test data
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+
+# Final output
+print(f"Accuracy of my model was {test_accuracy * 100:.2f}%")
